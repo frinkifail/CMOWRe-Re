@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Not loaded | CMOWRe-Re</title>
+</head>
+
+<body>
+    <p id="splash">Hmm, this is a cool splash! (If you see this something probably went wrong aka game script didn't
+        load or either it's still loading)</p>
+    <div id="wall">
+        <h2>You are at <span id="wall-name">The Non-Existent Wall</span></h2>
+        <h3><span id="wall-hp" class="beeg hp">100</span> out of <span id="wall-maxhp" class="beeg hp">100</span><br>HP
+            Left</h3>
+    </div>
+    <div id="player">
+        <h3>You have <span id="plr-catsh" class="beeg catsh">0</span> catsh</h3>
+        <h3>You deal <span id="plr-attack" class="beeg atk">0</span> points of damage (plus random number)</h3>
+        <button id="attack">Attack</button>
+    </div>
+    <div id="upgrades">
+        <h1>Upgrades</h1>
+        <div id="upgrade-template" class="upgrade" style="display: none;">
+            <p>Example Upgrade</p>
+            <p>6,969 catsh</p>
+            <p>Does this and that</p>
+            <button>Buy</button>
+        </div>
+    </div>
+    <div id="settings">
+        <h1>Settings</h1>
+        <button id="reset-save">Reset Save</button>
+    </div>
+</body>
+<script src="./src/main.ts" type="module"></script>
+
+</html>
