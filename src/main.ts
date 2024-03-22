@@ -2,41 +2,11 @@ import './styles.css';
 import "toastify-js/src/toastify.css";
 import './toast.css';
 import {elements, gameloop, update} from './gameloop';
-import {WALLS} from './wall list';
-import confetti from 'canvas-confetti';
-import {load, player, resetFailsafe, resetSave, settings} from "./player";
-import {UPGRADES} from "./upgrades";
-
-const wallArray = Object.values(WALLS);
+import {load, player, resetSave, attack} from "./player";
+import {NAME_TO_KEY, UPGRADES} from "./upgrades";
+import Toastify from "toastify-js";
 
 const TPS = 20;
-
-function attack(isAuto: boolean) {
-    if (!isAuto && settings.attackParticlesEnabled) confetti({
-        colors: ["#ff1b1b"],
-        shapes: ["square"],
-        gravity: 2,
-        spread: 90
-    });
-    const x = (player.attack * player.upgrades.damageMultiplier.level) + Math.random() * 2;
-    player.wall.hp -= x;
-    player.catsh += x;
-    if (player.wall.hp <= 0) {
-        confetti({ shapes: ['circle'] });
-        const attackSfx = new Audio('/attack.mp3');
-        attackSfx.volume = settings.attackSoundVolume / 100;
-        attackSfx.play().then(_ => null);
-        const currentWallIndex = wallArray.indexOf(player.wall);
-        if (currentWallIndex === -1) resetFailsafe();
-        if (currentWallIndex + 1 > wallArray.length) {
-            alert("Congratulations! You beat the game!");
-            // TODO: add prestige system
-        }
-        player.wall = wallArray[currentWallIndex + 1] ?? WALLS.unknown;
-        if (player.wall === WALLS.unknown) resetFailsafe();
-        player.wall.hp = player.wall.maxhp; // IDK failsafe potentially if it isn't already there
-    }
-}
 
 onload = async () => {
     console.log("Started to load");
@@ -51,23 +21,30 @@ onload = async () => {
     }
     elements.attackButton.onclick = () => attack(false);
     elements.resetSave.onclick = resetSave;
-    for (const upgrade of Object.values(UPGRADES)) {
+    for (const upg of Object.values(UPGRADES)) {
+        const upgrade = player.upgrades[NAME_TO_KEY[upg.name]];
         const el = elements.upgradeTemplate.cloneNode(true) as HTMLDivElement;
         const name = el.children[0] as HTMLParagraphElement;
         const cost = el.children[1] as HTMLParagraphElement;
         const description = el.children[2] as HTMLParagraphElement;
         const buyButton = el.children[3] as HTMLButtonElement;
-        name.textContent = upgrade.name;
-        cost.textContent = `${upgrade.cost.toLocaleString()} catsh`;
-        description.textContent = upgrade.description;
+        function update() {
+            name.textContent = upgrade.name;
+            cost.textContent = `${upgrade.cost.toLocaleString()} catsh`;
+            description.textContent = upgrade.description;
+        }
+        update()
         buyButton.onclick = () => {
-            const playerUpgrade = player.upgrades[upgrade.name];
-            if (player.catsh >= playerUpgrade.cost) {
-                player.catsh -= playerUpgrade.cost;
-                playerUpgrade.level++;
-                playerUpgrade.cost *= 1.15;
+            if (player.catsh >= upgrade.cost) {
+                player.catsh -= upgrade.cost;
+                upgrade.level++;
+                upgrade.cost *= 1.15;
+                update()
+            } else {
+                Toastify({text: "You don't have enough catsh!"}).showToast();
             }
         }
+        el.id = "";
         el.style.display = '';
         elements.upgrades.append(el);
     }

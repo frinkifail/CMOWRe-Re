@@ -2,6 +2,7 @@ import {PlayerData, Settings} from "./types";
 import {WALLS} from "./wall list";
 import {UPGRADES} from "./upgrades";
 import Toastify from "toastify-js";
+import confetti from "canvas-confetti";
 
 export let settings: Settings = {
     attackSoundVolume: 20,
@@ -15,6 +16,36 @@ export let player: PlayerData = {
     catsh: 0,
     timeFirstPlayed: new Date(),
     upgrades: Object.assign(UPGRADES)
+}
+
+const wallArray = Object.values(WALLS);
+
+export function attack(isAuto: boolean, amount?: number) {
+    if (!isAuto && settings.attackParticlesEnabled) confetti({
+        colors: ["#ff1b1b"],
+        shapes: ["square"],
+        gravity: 2,
+        spread: 90
+    });
+    let x = (player.attack * player.upgrades.damageMultiplier.level) + Math.random() * 2;
+    if (amount !== undefined) x = amount;
+    player.wall.hp -= x;
+    player.catsh += x;
+    if (player.wall.hp <= 0) {
+        confetti({ shapes: ['circle'] });
+        const attackSfx = new Audio('/attack.mp3');
+        attackSfx.volume = settings.attackSoundVolume / 100;
+        attackSfx.play().then(_ => null);
+        const currentWallIndex = wallArray.indexOf(player.wall);
+        if (currentWallIndex === -1) resetFailsafe();
+        if (currentWallIndex + 1 > wallArray.length) {
+            alert("Congratulations! You beat the game!");
+            // TODO: add prestige system
+        }
+        player.wall = wallArray[currentWallIndex + 1] ?? WALLS.unknown;
+        if (player.wall === WALLS.unknown) resetFailsafe();
+        player.wall.hp = player.wall.maxhp; // IDK failsafe potentially if it isn't already there
+    }
 }
 
 export function load() {

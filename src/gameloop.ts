@@ -1,5 +1,5 @@
 import { PlayerData } from "./types";
-import {save, settings} from "./player";
+import {attack, save, settings} from "./player";
 import Toastify from 'toastify-js';
 
 export const elements = {
@@ -24,6 +24,7 @@ export function gameloop(player: PlayerData) {
         save();
         Toastify({text: "saved"}).showToast();
     }
+    attack(true, (player.upgrades.dps.level / 10) * player.upgrades.damageMultiplier.level);
 }
 
 export function update(player: PlayerData) {
